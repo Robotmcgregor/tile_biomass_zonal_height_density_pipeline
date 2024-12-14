@@ -144,7 +144,7 @@ def list_file_directory_fn(landsat_tile_dir, extension, zone):
 
     for root, dirs, files in os.walk(landsat_tile_dir):
         for file in files:
-            #print('file: ', file)
+            print('file: ', file)
             # Search for files ending with the string value stored in the object variable: imageSearchCriteria.
             if file.endswith("{0}m{1}.img".format(extension, str(zone))):
                 # Concatenate the root and file names to create a file path.
@@ -152,7 +152,7 @@ def list_file_directory_fn(landsat_tile_dir, extension, zone):
                 #print('LOCATED - image_path: ', image_path)
                 # Append the image_path variable to the empty list 'list_landsat_tile_path'.
                 list_landsat_tile_path.append(image_path)
-                # print("list_landsat: ", list_landsat_tile_path)
+    print("list_landsat: ", list_landsat_tile_path)
 
     return list_landsat_tile_path
 
@@ -178,7 +178,7 @@ def create_csv_list_of_paths_fn(lsat_tile, lsat_dir, extension, image_count, til
     # landsat_tile = str(path) + '_' + str(row)
 
     # Loop through the unique Landsat Tile list ' listTile Unique'.
-    landsat_tile_dir = lsat_dir + '\\' + lsat_tile
+    landsat_tile_dir = os.path.join(lsat_dir, lsat_tile, "height") #lsat_dir + '\\' + lsat_tile
     print('=' * 50)
     print('Confirm that there are sufficient seasonal fractional cover tiles h99 for processing')
     print('landsat_tile_dir: ', landsat_tile_dir)

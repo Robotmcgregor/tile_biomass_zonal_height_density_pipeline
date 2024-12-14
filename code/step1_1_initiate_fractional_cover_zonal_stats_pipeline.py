@@ -129,7 +129,7 @@ def get_cmd_args_fn():
 
     p.add_argument('-t', '--tile_grid',
                    help="Enter filepath for the Landsat Tile Grid.shp.",
-                   default=r"N:\Landsat\tilegrid\Landsat_wrs2_TileGrid.shp")
+                   default=r"C:\Users\robot\code\pipelines\tile_biomass_zonal_height_density_pipeline\assets\shapefiles\Landsat_wrs2_TileGrid.shp")
 
     p.add_argument('-x', '--export_dir',
                    help='Enter the export directory for all of the final outputs.',
@@ -137,10 +137,10 @@ def get_cmd_args_fn():
 
     p.add_argument('-i', '--image_count', type=int,
                    help='Enter the minimum amount of Landsat images required per tile as an integer (i.e. 950).',
-                   default=100)
+                   default=1)
 
     p.add_argument('-l', '--lsat_dir', help="The wrs2 directory containing landsat data",
-                   default=r"N:\Landsat\wrs2")
+                   default=r"H:\height\2021")
 
     p.add_argument('-n', '--no_data', help="Enter the Landsat Fractional Cover no data value (i.e. 0)",
                    default=0)
@@ -152,7 +152,7 @@ def get_cmd_args_fn():
                    default=0)
 
     p.add_argument('-z', '--zone', help="Enter the Landsat tile zone (i.e. 2 or 3)",
-                   default=0)
+                   default=2)
 
     cmd_args = p.parse_args()
 
@@ -274,6 +274,9 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
     h99_tile_status_dir = (export_dir_path + '\\h99_tile_status')
     os.mkdir(h99_tile_status_dir)
 
+    h25_tile_status_dir = (export_dir_path + '\\h25_tile_status')
+    os.mkdir(h25_tile_status_dir)
+
     hcv_tile_status_dir = (export_dir_path + '\\hcv_tile_status')
     os.mkdir(hcv_tile_status_dir)
 
@@ -302,6 +305,9 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
 
     h99_tile_for_processing_dir = (h99_tile_status_dir + '\\h99_for_processing')
     os.mkdir(h99_tile_for_processing_dir)
+
+    h25_tile_for_processing_dir = (h25_tile_status_dir + '\\h25_for_processing')
+    os.mkdir(h25_tile_for_processing_dir)
 
     hcv_tile_for_processing_dir = (hcv_tile_status_dir + '\\hcv_for_processing')
     os.mkdir(hcv_tile_for_processing_dir)
@@ -332,6 +338,9 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
     h99_insuf_files_dir = (h99_tile_status_dir + '\\h99_insufficient_files')
     os.mkdir(h99_insuf_files_dir)
 
+    h25_insuf_files_dir = (h25_tile_status_dir + '\\h25_insufficient_files')
+    os.mkdir(h25_insuf_files_dir)
+
     hcv_insuf_files_dir = (hcv_tile_status_dir + '\\hcv_insufficient_files')
     os.mkdir(hcv_insuf_files_dir)
 
@@ -341,6 +350,9 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
 
     h99_stat_list_dir = h99_tile_status_dir + '\\h99_tile_status_lists'
     os.mkdir(h99_stat_list_dir)
+
+    h25_stat_list_dir = h25_tile_status_dir + '\\h25_tile_status_lists'
+    os.mkdir(h25_stat_list_dir)
 
     hcv_stat_list_dir = hcv_tile_status_dir + '\\hcv_tile_status_lists'
     os.mkdir(hcv_stat_list_dir)
@@ -373,6 +385,9 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
     h99_zonal_stats_output_dir = (export_dir_path + '\\h99_zonal_stats')
     os.mkdir(h99_zonal_stats_output_dir)
 
+    h25_zonal_stats_output_dir = (export_dir_path + '\\h25_zonal_stats')
+    os.mkdir(h25_zonal_stats_output_dir)
+
     hcv_zonal_stats_output_dir = (export_dir_path + '\\hcv_zonal_stats')
     os.mkdir(hcv_zonal_stats_output_dir)
 
@@ -397,7 +412,7 @@ def export_dir_folders_fn(export_dir_path, lsat_tile):
     wfp_zonal_stats_output_dir = (export_dir_path + '\\wfp_zonal_stats')
     os.mkdir(wfp_zonal_stats_output_dir)
 
-    return h99_tile_status_dir, hcv_tile_status_dir, hmc_tile_status_dir, hsd_tile_status_dir, fdc_tile_status_dir, \
+    return h99_tile_status_dir, h25_tile_status_dir, hcv_tile_status_dir, hmc_tile_status_dir, hsd_tile_status_dir, fdc_tile_status_dir, \
         ccw_tile_status_dir, n17_tile_status_dir, wdc_tile_status_dir, wfp_tile_status_dir
 
 
@@ -432,7 +447,7 @@ def main_routine():
     #
     # call the exportDirFolders function.
 
-    h99_tile_status_dir, hcv_tile_status_dir, hmc_tile_status_dir, hsd_tile_status_dir, fdc_tile_status_dir, \
+    h99_tile_status_dir, h25_tile_status_dir, hcv_tile_status_dir, hmc_tile_status_dir, hsd_tile_status_dir, fdc_tile_status_dir, \
         ccw_tile_status_dir, n17_tile_status_dir, wdc_tile_status_dir, wfp_tile_status_dir = export_dir_folders_fn(export_dir_path, lsat_tile)
 
 
@@ -859,6 +874,51 @@ def main_routine():
 
     else:
         print("No fdc images were located")
+
+    # ------------------------------------------- H25 ----------------------------------------------------------
+
+    extension = "h25"
+    no_data = 0.0
+
+    print("h25_" * 50)
+    print(image_count, lsat_dir, path, row, zone, extension)
+
+    # call the step1_5_dil_landsat_list.py script.
+    import step1_5_h25_landsat_list_orig
+    step1_5_h25_landsat_list_orig.main_routine(
+        export_dir_path, geo_df3, image_count, lsat_dir, path, row, zone, extension)
+
+    print("up to here")
+    print("h25_tile_status_dir: ", h25_tile_status_dir)
+    # define the tile for processing directory.
+    h25_tile_for_processing_dir = (h25_tile_status_dir + '\\h25_for_processing')
+    print('-' * 50)
+
+    h25_zonal_stats_output = (export_dir_path + '\\h25_zonal_stats')
+    # print('dil zonal_stats_output: ', dil_zonal_stats_output)
+    h25_list_zonal_tile = []
+
+    for file in glob.glob(h25_tile_for_processing_dir + '\\*.csv'):
+        print(file)
+        # append tile paths to list.
+        h25_list_zonal_tile.append(file)
+
+    print("-" * 50)
+    print("h25: ", h25_list_zonal_tile)
+
+    if len(h25_list_zonal_tile) >= 1:
+        #
+        for csv_file in h25_list_zonal_tile:
+            print("h25_zonal_stats_output: ", h25_zonal_stats_output)
+            # call the step1_6_h25_zonal_stats.py script.
+            import step1_6_h25_zonal_stats_v2_orig
+            h25_output_zonal_stats, h25_complete_tile, h25_tile, h25_temp_dir_bands = step1_6_h25_zonal_stats_v2_orig.main_routine(
+                temp_dir_path, zonal_stats_ready_dir, no_data, csv_file, h25_zonal_stats_output, shapefile_path,
+                "h25")
+
+
+    else:
+        print("No h25 images were located")
 
     # ---------------------------------------------------- Clean up ----------------------------------------------------
 

@@ -178,7 +178,7 @@ def create_csv_list_of_paths_fn(lsat_tile, lsat_dir, extension, image_count, til
     # landsat_tile = str(path) + '_' + str(row)
 
     # Loop through the unique Landsat Tile list ' listTile Unique'.
-    landsat_tile_dir = lsat_dir + '\\' + lsat_tile
+    landsat_tile_dir = os.path.join(lsat_dir, lsat_tile, "height")
     print('=' * 50)
     print('Confirm that there are sufficient seasonal fractional cover tiles hmc for processing')
     print('landsat_tile_dir: ', landsat_tile_dir)
